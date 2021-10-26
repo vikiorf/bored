@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var displayTenItemsButtonEl = document.querySelector('#display-ten-items');
 var Api = /** @class */ (function () {
     function Api() {
     }
@@ -44,7 +46,7 @@ var Api = /** @class */ (function () {
                     case 0: return [4 /*yield*/, fetch('http://www.boredapi.com/api/activity/')
                             .then(function (res) { return res.json(); })
                             .then(function (res) {
-                            console.log(res);
+                            return res;
                         })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -53,6 +55,73 @@ var Api = /** @class */ (function () {
     };
     return Api;
 }());
-var api = new Api();
-var hej = api.fetchRandomActivity();
-console.log(hej);
+var BoredItems = /** @class */ (function () {
+    function BoredItems() {
+    }
+    BoredItems.prototype.addItem = function (item) {
+        BoredItems.boredItem.push(item);
+    };
+    BoredItems.prototype.clearBoredItems = function () {
+        BoredItems.boredItem = [];
+    };
+    BoredItems.boredItem = [];
+    return BoredItems;
+}());
+var Tasks = /** @class */ (function () {
+    function Tasks() {
+    }
+    return Tasks;
+}());
+var Render = /** @class */ (function () {
+    function Render() {
+    }
+    Render.prototype.removeAllBoredItemsFromList = function () {
+        var boredItems = new BoredItems();
+        boredItems.clearBoredItems();
+        var boredItemsList = document.querySelector('#bored-items-list');
+        if (boredItemsList)
+            boredItemsList.innerHTML = '';
+    };
+    Render.prototype.renderTenItems = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var boredItems, api, i, activity, boredItemsList, newLiEl;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        boredItems = new BoredItems();
+                        api = new Api();
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < 10)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, api.fetchRandomActivity()];
+                    case 2:
+                        activity = _a.sent();
+                        boredItems.addItem(activity);
+                        boredItemsList = document.querySelector('#bored-items-list');
+                        newLiEl = document.createElement('li');
+                        newLiEl.classList.add('bored-item');
+                        newLiEl.textContent = activity.activity;
+                        boredItemsList === null || boredItemsList === void 0 ? void 0 : boredItemsList.appendChild(newLiEl);
+                        _a.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return Render;
+}());
+var Init = /** @class */ (function () {
+    function Init() {
+    }
+    return Init;
+}());
+var init = new Init();
+displayTenItemsButtonEl.addEventListener('click', function () {
+    var render = new Render();
+    render.removeAllBoredItemsFromList();
+    render.renderTenItems();
+});
