@@ -35,19 +35,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var displayTenItemsButtonEl = document.querySelector('#display-ten-items');
+var parametersFormEl = document.querySelector('#parameters-form');
 var Api = /** @class */ (function () {
     function Api() {
     }
-    Api.prototype.fetchRandomActivity = function () {
+    Api.prototype.fetchActivity = function (filterObject) {
         return __awaiter(this, void 0, void 0, function () {
+            var typeString, participantsString, priceString, fetchString;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch('http://www.boredapi.com/api/activity/')
-                            .then(function (res) { return res.json(); })
-                            .then(function (res) {
-                            return res;
-                        })];
+                    case 0:
+                        typeString = '';
+                        participantsString = '';
+                        priceString = '';
+                        if (filterObject.type) {
+                            typeString = "type=" + filterObject.type;
+                        }
+                        if (filterObject.participants) {
+                            participantsString = "participants=" + filterObject.participants;
+                        }
+                        if (filterObject.price || filterObject.price === 0) {
+                            priceString = "maxprice=" + filterObject.price;
+                        }
+                        fetchString = "http://www.boredapi.com/api/activity?" + typeString + "&" + participantsString + "&" + priceString;
+                        console.log(fetchString);
+                        return [4 /*yield*/, fetch(fetchString)
+                                .then(function (res) { return res.json(); })
+                                .then(function (res) {
+                                return res;
+                            })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -82,9 +98,9 @@ var Render = /** @class */ (function () {
         if (boredItemsList)
             boredItemsList.innerHTML = '';
     };
-    Render.prototype.renderTenItems = function () {
+    Render.prototype.renderTenItems = function (filterObject) {
         return __awaiter(this, void 0, void 0, function () {
-            var boredItems, api, i, activity, boredItemsList, newLiEl;
+            var boredItems, api, i, activity, boredItemsList, newLiEl, typePEl, activityParagraphEl, saveForLaterButtonEl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -94,14 +110,24 @@ var Render = /** @class */ (function () {
                         _a.label = 1;
                     case 1:
                         if (!(i < 10)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, api.fetchRandomActivity()];
+                        return [4 /*yield*/, api.fetchActivity(filterObject)];
                     case 2:
                         activity = _a.sent();
                         boredItems.addItem(activity);
+                        console.log('hejsan', activity);
                         boredItemsList = document.querySelector('#bored-items-list');
                         newLiEl = document.createElement('li');
+                        typePEl = document.createElement('p');
+                        activityParagraphEl = document.createElement('p');
+                        saveForLaterButtonEl = document.createElement('button');
+                        activityParagraphEl.textContent = activity.activity;
+                        activityParagraphEl.classList.add('activity-paragraph');
+                        typePEl.textContent = activity.type;
+                        saveForLaterButtonEl.textContent = 'Save for later';
                         newLiEl.classList.add('bored-item');
-                        newLiEl.textContent = activity.activity;
+                        newLiEl.append(activityParagraphEl);
+                        newLiEl.append(typePEl);
+                        newLiEl.append(saveForLaterButtonEl);
                         boredItemsList === null || boredItemsList === void 0 ? void 0 : boredItemsList.appendChild(newLiEl);
                         _a.label = 3;
                     case 3:
@@ -114,14 +140,35 @@ var Render = /** @class */ (function () {
     };
     return Render;
 }());
+var Filter = /** @class */ (function () {
+    function Filter() {
+    }
+    Filter.prototype.returnInputValues = function () {
+        var typeSelectEl = document.querySelector('#type-select');
+        var participantsInputEl = document.querySelector('#participants-input');
+        var priceSliderEl = document.querySelector('#price-slider');
+        var type = typeSelectEl.value;
+        var participants = +participantsInputEl.value;
+        var price = +priceSliderEl.value / 100;
+        return {
+            type: type,
+            participants: participants,
+            price: price
+        };
+    };
+    return Filter;
+}());
 var Init = /** @class */ (function () {
     function Init() {
     }
     return Init;
 }());
 var init = new Init();
-displayTenItemsButtonEl.addEventListener('click', function () {
+parametersFormEl.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var filter = new Filter();
+    var filterValues = filter.returnInputValues();
     var render = new Render();
     render.removeAllBoredItemsFromList();
-    render.renderTenItems();
+    render.renderTenItems(filterValues);
 });

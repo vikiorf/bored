@@ -1,20 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="index.js" defer></script>
-  <link rel="stylesheet" href="index.css">
-  <title>Bored?</title>
-</head>
-<body>
-  <h1>Bored?</h1>
-  <button id="display-ten-items">Click me!</button>
-  <ul id="bored-items-list">
-    <li class="bored-item">
-
-    </li>
-  </ul>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="index.js" defer></script>
+		<link rel="stylesheet" href="index.css" />
+		<title>Bored?</title>
+	</head>
+	<body>
+		<h1>Bored?</h1>
+		<form id="parameters-form">
+			<select name="type" id="type-select">
+				<option value="" selected>Random</option>
+				<option value="education">Education</option>
+				<option value="recreational">Recreational</option>
+				<option value="social">Social</option>
+				<option value="diy">DIY</option>
+				<option value="charity">Charity</option>
+				<option value="coooking">Cooking</option>
+				<option value="relaxation">Relaxation</option>
+				<option value="music">Music</option>
+				<option value="busywork">Busywork</option>
+			</select>
+			<label for="participants-input">Participants</label>
+			<input
+				type="number"
+				name="participants"
+				id="participants-input"
+				min="0"
+			/>
+			<label for="price-slider"></label>
+			<input type="range" name="price-slider" id="price-slider" min="1" max="100" />
+      <input type="submit" value="Search">
+		</form>
+		<ul id="bored-items-list">
+			<li class="bored-item">
+        <p class="activity-paragraph">Memorize the fifty states and their capitals</p>
+        <p class="type-paragraph">Education</p>
+        <button>Save for later</button>
+      </li>
+		</ul>
+	</body>
 </html>
