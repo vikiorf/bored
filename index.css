@@ -1,37 +1,69 @@
 body {
-	margin: 0;
-	display: flex;
-	flex-direction: column;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
-	text-align: center;
+  text-align: center;
+}
+
+nav {
+	height: 40px;
+  margin-left: 20px;
+  margin-right: 20px;
+	border: 1px solid black;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom: none;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+
+nav input {
+	background-color: inherit;
+	outline: none;
+	border: none;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+}
+
+.nav-active {
+	background-color: gray;
 }
 
 #parameters-form {
-	border: 1px solid black;
-	border-radius: 10px;
-	height: 200px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	padding: 20px;
-	margin-left: 20px;
-	margin-right: 20px;
+	background-color: gray;
+  border: 1px solid black;
+	border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 #bored-items-list {
-	padding: 20px;
+	background-color: gray;
+  border: 1px solid black;
+  padding: 20px;
   display: grid;
   gap: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
 }
 
 .bored-item {
   border: 1px solid black;
   border-radius: 10px;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   padding: 10px;
+	background-color: white;
 }
 
 .activity-paragraph {
@@ -46,4 +78,29 @@ h1 {
   grid-row: 1;
   align-self: flex-start;
   justify-self: start;
+}
+
+#task-list {
+	display: none;
+	background-color: gray;
+	margin: 0;
+	margin-left: 20px;
+	margin-right: 20px;
+	gap: 20px;
+	padding: 20px;
+	list-style-type: none;
+}
+.task {
+	border: 1px solid black;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+}
+.task span {
+	align-self: flex-end;
+	display: block;
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	border: 1px solid black;
 }

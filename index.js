@@ -36,6 +36,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var parametersFormEl = document.querySelector('#parameters-form');
+var boredItemsList = document.querySelector('#bored-items-list');
+var allInputButtonEls = Array.from(document.querySelectorAll('input[type="button"]'));
+var navActivitiesButtonEl = document.querySelector('#nav-activities');
+var navTodoButtonEl = document.querySelector('#nav-todo');
+var navGraphButtonEl = document.querySelector('#nav-graph');
+var taskListEl = document.querySelector('#task-list');
 var Api = /** @class */ (function () {
     function Api() {
     }
@@ -75,17 +81,23 @@ var BoredItems = /** @class */ (function () {
     function BoredItems() {
     }
     BoredItems.prototype.addItem = function (item) {
-        BoredItems.boredItem.push(item);
+        BoredItems.boredItemsList.push(item);
     };
     BoredItems.prototype.clearBoredItems = function () {
-        BoredItems.boredItem = [];
+        BoredItems.boredItemsList = [];
     };
-    BoredItems.boredItem = [];
+    BoredItems.boredItemsList = [];
     return BoredItems;
 }());
 var Tasks = /** @class */ (function () {
     function Tasks() {
     }
+    Tasks.prototype.addTask = function (activity) {
+        Tasks.tasksList.push(activity);
+    };
+    Tasks.tasksList = localStorage.getItem(JSON.parse('task-list'))
+        ? localStorage.getItem(JSON.parse('task-list'))
+        : [];
     return Tasks;
 }());
 var Render = /** @class */ (function () {
@@ -94,41 +106,90 @@ var Render = /** @class */ (function () {
     Render.prototype.removeAllBoredItemsFromList = function () {
         var boredItems = new BoredItems();
         boredItems.clearBoredItems();
-        var boredItemsList = document.querySelector('#bored-items-list');
         if (boredItemsList)
             boredItemsList.innerHTML = '';
     };
-    Render.prototype.renderTenItems = function (filterObject) {
+    Render.prototype.createErrorElement = function (error) {
+        var liEl = document.createElement('li');
+        liEl.classList.add('bored-item');
+        liEl.textContent = error.error;
+        return liEl;
+    };
+    Render.prototype.createBoredItemElement = function (activity) {
+        var newLiEl = document.createElement('li');
+        var typePEl = document.createElement('p');
+        var activityParagraphEl = document.createElement('p');
+        var saveForLaterButtonEl = document.createElement('button');
+        activityParagraphEl.textContent = activity.activity;
+        activityParagraphEl.classList.add('activity-paragraph');
+        typePEl.textContent = activity.type;
+        saveForLaterButtonEl.textContent = 'Save for later';
+        saveForLaterButtonEl.addEventListener('click', function () {
+            var tasks = new Tasks();
+            tasks.addTask(activity);
+        });
+        newLiEl.classList.add('bored-item');
+        newLiEl.append(activityParagraphEl);
+        newLiEl.append(typePEl);
+        newLiEl.append(saveForLaterButtonEl);
+        return newLiEl;
+    };
+    /**
+     * Fetches and renders 10 boredItems
+     * @param filterObject {type: object, type: string, participants: number, price: number}
+     */
+    Render.prototype.renderTenBoredItems = function (filterObject) {
         return __awaiter(this, void 0, void 0, function () {
-            var boredItems, api, i, activity, boredItemsList, newLiEl, typePEl, activityParagraphEl, saveForLaterButtonEl;
+            var boredItems, api, runCheck, _loop_1, this_1, out_i_1, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         boredItems = new BoredItems();
                         api = new Api();
+                        runCheck = 5;
+                        _loop_1 = function (i) {
+                            var activity, doubleItemCheck, newLiEl, boredItemsList_1;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0: return [4 /*yield*/, api.fetchActivity(filterObject)];
+                                    case 1:
+                                        activity = _b.sent();
+                                        doubleItemCheck = BoredItems.boredItemsList.findIndex(function (boredItem) { return boredItem.key === activity.key; });
+                                        if (doubleItemCheck >= 0) {
+                                            runCheck--;
+                                            i--;
+                                            if (runCheck === 0)
+                                                i = 10;
+                                        }
+                                        else {
+                                            runCheck = 5;
+                                            boredItems.addItem(activity);
+                                            console.log('hejsan', activity);
+                                            newLiEl = void 0;
+                                            if (activity.error) {
+                                                newLiEl = this_1.createErrorElement(activity);
+                                                i = 10;
+                                            }
+                                            else {
+                                                newLiEl = this_1.createBoredItemElement(activity);
+                                            }
+                                            boredItemsList_1 = document.querySelector('#bored-items-list');
+                                            boredItemsList_1 === null || boredItemsList_1 === void 0 ? void 0 : boredItemsList_1.appendChild(newLiEl);
+                                        }
+                                        out_i_1 = i;
+                                        return [2 /*return*/];
+                                }
+                            });
+                        };
+                        this_1 = this;
                         i = 0;
                         _a.label = 1;
                     case 1:
                         if (!(i < 10)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, api.fetchActivity(filterObject)];
+                        return [5 /*yield**/, _loop_1(i)];
                     case 2:
-                        activity = _a.sent();
-                        boredItems.addItem(activity);
-                        console.log('hejsan', activity);
-                        boredItemsList = document.querySelector('#bored-items-list');
-                        newLiEl = document.createElement('li');
-                        typePEl = document.createElement('p');
-                        activityParagraphEl = document.createElement('p');
-                        saveForLaterButtonEl = document.createElement('button');
-                        activityParagraphEl.textContent = activity.activity;
-                        activityParagraphEl.classList.add('activity-paragraph');
-                        typePEl.textContent = activity.type;
-                        saveForLaterButtonEl.textContent = 'Save for later';
-                        newLiEl.classList.add('bored-item');
-                        newLiEl.append(activityParagraphEl);
-                        newLiEl.append(typePEl);
-                        newLiEl.append(saveForLaterButtonEl);
-                        boredItemsList === null || boredItemsList === void 0 ? void 0 : boredItemsList.appendChild(newLiEl);
+                        _a.sent();
+                        i = out_i_1;
                         _a.label = 3;
                     case 3:
                         i++;
@@ -137,6 +198,51 @@ var Render = /** @class */ (function () {
                 }
             });
         });
+    };
+    Render.prototype.clearTaskList = function () {
+        taskListEl.innerHTML = '';
+    };
+    Render.prototype.renderTasks = function () {
+        Tasks.tasksList.forEach(function (task) {
+            console.log(task);
+            var newLiEl = document.createElement('li');
+            var taskNameEl = document.createElement('p');
+            var taskTypeEl = document.createElement('p');
+            var checkboxSpanEl = document.createElement('span');
+            newLiEl.classList.add('task');
+            taskNameEl.textContent = task.activity;
+            taskTypeEl.textContent = task.type;
+            newLiEl.append(taskNameEl);
+            newLiEl.append(taskTypeEl);
+            newLiEl.append(checkboxSpanEl);
+            taskListEl.append(newLiEl);
+        });
+    };
+    Render.prototype.renderBoredView = function () {
+        navActivitiesButtonEl === null || navActivitiesButtonEl === void 0 ? void 0 : navActivitiesButtonEl.classList.add('nav-active');
+        navGraphButtonEl === null || navGraphButtonEl === void 0 ? void 0 : navGraphButtonEl.classList.remove('nav-active');
+        navTodoButtonEl === null || navTodoButtonEl === void 0 ? void 0 : navTodoButtonEl.classList.remove('nav-active');
+        parametersFormEl.style.display = 'flex';
+        boredItemsList.style.display = 'grid';
+        taskListEl.style.display = 'none';
+    };
+    Render.prototype.renderTodoView = function () {
+        navTodoButtonEl === null || navTodoButtonEl === void 0 ? void 0 : navTodoButtonEl.classList.add('nav-active');
+        navGraphButtonEl === null || navGraphButtonEl === void 0 ? void 0 : navGraphButtonEl.classList.remove('nav-active');
+        navActivitiesButtonEl === null || navActivitiesButtonEl === void 0 ? void 0 : navActivitiesButtonEl.classList.remove('nav-active');
+        parametersFormEl.style.display = 'none';
+        boredItemsList.style.display = 'none';
+        taskListEl.style.display = 'grid';
+        this.clearTaskList();
+        this.renderTasks();
+    };
+    Render.prototype.renderGraphView = function () {
+        navGraphButtonEl === null || navGraphButtonEl === void 0 ? void 0 : navGraphButtonEl.classList.add('nav-active');
+        navTodoButtonEl === null || navTodoButtonEl === void 0 ? void 0 : navTodoButtonEl.classList.remove('nav-active');
+        navActivitiesButtonEl === null || navActivitiesButtonEl === void 0 ? void 0 : navActivitiesButtonEl.classList.remove('nav-active');
+        parametersFormEl.style.display = 'none';
+        boredItemsList.style.display = 'none';
+        taskListEl.style.display = 'none';
     };
     return Render;
 }());
@@ -164,11 +270,26 @@ var Init = /** @class */ (function () {
     return Init;
 }());
 var init = new Init();
+allInputButtonEls.forEach(function (inputButtonEl) {
+    inputButtonEl.addEventListener('click', function (event) {
+        var element = event.target;
+        var render = new Render();
+        if (element.value === 'Activities') {
+            render.renderBoredView();
+        }
+        else if (element.value === 'Todo') {
+            render.renderTodoView();
+        }
+        else if (element.value === 'Graph') {
+            render.renderGraphView();
+        }
+    });
+});
 parametersFormEl.addEventListener('submit', function (e) {
     e.preventDefault();
     var filter = new Filter();
     var filterValues = filter.returnInputValues();
     var render = new Render();
     render.removeAllBoredItemsFromList();
-    render.renderTenItems(filterValues);
+    render.renderTenBoredItems(filterValues);
 });
