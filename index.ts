@@ -1,3 +1,4 @@
+/// <reference types="chartjs" />
 const parametersFormEl = document.querySelector(
 	'#parameters-form'
 )! as HTMLFormElement
@@ -14,7 +15,7 @@ const navGraphButtonEl = document.querySelector('#nav-graph')
 const taskListEl = document.querySelector('#task-list')! as HTMLUListElement
 
 const chartEl = document.querySelector('#chart')! as any
-const chart = chartEl!.getContext('2d')
+const chart = chartEl.getContext('2d')
 
 let myChart: any
 
@@ -265,25 +266,22 @@ class Render {
 	}
 
 	renderAllTasks(): void {
+		const doneTasks: Array<HTMLLIElement> = []
+
 		Tasks.tasksListItems.forEach((task) => {
 			let newLiEl: HTMLLIElement
 			if (task.status === 'new') {
 				newLiEl = this.createNewTaskElement(task)
-			}
-
-			if (newLiEl!) {
 				taskListEl.append(newLiEl)
+				// newTasks.push(newLiEl)
+			} else {
+				newLiEl = this.createDoneTaskElement(task)
+				doneTasks.push(newLiEl)
 			}
 		})
-		Tasks.tasksListItems.forEach((task) => {
-			let newLiEl: HTMLLIElement
-			if (task.status === 'done') {
-				newLiEl = this.createDoneTaskElement(task)
-			}
 
-			if (newLiEl!) {
-				taskListEl.append(newLiEl)
-			}
+		doneTasks.forEach((taskEl) => {
+			taskListEl.append(taskEl)
 		})
 	}
 

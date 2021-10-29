@@ -46,6 +46,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+/// <reference types="chartjs" />
 var parametersFormEl = document.querySelector('#parameters-form');
 var boredItemsList = document.querySelector('#bored-items-list');
 var allInputButtonEls = Array.from(document.querySelectorAll('input[type="button"]'));
@@ -286,23 +287,21 @@ var Render = /** @class */ (function () {
     };
     Render.prototype.renderAllTasks = function () {
         var _this = this;
+        var doneTasks = [];
         Tasks.tasksListItems.forEach(function (task) {
             var newLiEl;
             if (task.status === 'new') {
                 newLiEl = _this.createNewTaskElement(task);
-            }
-            if (newLiEl) {
                 taskListEl.append(newLiEl);
+                // newTasks.push(newLiEl)
+            }
+            else {
+                newLiEl = _this.createDoneTaskElement(task);
+                doneTasks.push(newLiEl);
             }
         });
-        Tasks.tasksListItems.forEach(function (task) {
-            var newLiEl;
-            if (task.status === 'done') {
-                newLiEl = _this.createDoneTaskElement(task);
-            }
-            if (newLiEl) {
-                taskListEl.append(newLiEl);
-            }
+        doneTasks.forEach(function (taskEl) {
+            taskListEl.append(taskEl);
         });
     };
     Render.prototype.renderBoredView = function () {
