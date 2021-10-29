@@ -132,3 +132,14 @@ nav input {
   width: 20px;
   align-self: center;
 }
+
+#chart {
+  display: none;
+}
+
+@media screen and (min-width: 600px) {
+  body {
+    padding-left: 20%;
+    padding-right: 20%;
+  }
+}
