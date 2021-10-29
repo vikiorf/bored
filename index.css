@@ -12,7 +12,6 @@ nav {
 	height: 40px;
   margin-left: 20px;
   margin-right: 20px;
-	border: 1px solid black;
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
 	border-bottom: none;
@@ -22,7 +21,6 @@ nav {
 
 nav input {
 	background-color: inherit;
-	outline: none;
 	border: none;
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
@@ -34,7 +32,6 @@ nav input {
 
 #parameters-form {
 	background-color: gray;
-  border: 1px solid black;
 	border-top: none;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
@@ -92,15 +89,41 @@ nav input {
 }
 .task {
 	border: 1px solid black;
+  border-radius: 5px;
 	padding: 10px;
-	display: flex;
-	flex-direction: column;
+	display: grid;
+  grid-template-columns: 1fr 0.1fr;
+  background-color: white;
+  height: 100px;
 }
-.task span {
-	align-self: flex-end;
-	display: block;
+
+.task-name {
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: center;
+  align-self: flex-end;
+}
+
+.task-type {
+  align-self: flex-start;
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.checkbox {
+  grid-row: 1;
+  grid-column: 2;
+	align-self: center;
+  justify-self: end;
+	display: flex;
+  justify-content: center;
 	border-radius: 50%;
 	width: 30px;
 	height: 30px;
-	border: 1px solid black;
+	border: 2px solid black;
+}
+
+.checkbox img {
+  width: 20px;
+  align-self: center;
 }

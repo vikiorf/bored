@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,6 +53,9 @@ var navActivitiesButtonEl = document.querySelector('#nav-activities');
 var navTodoButtonEl = document.querySelector('#nav-todo');
 var navGraphButtonEl = document.querySelector('#nav-graph');
 var taskListEl = document.querySelector('#task-list');
+var chartEl = document.querySelector('#chart');
+var chart = chartEl.getContext('2d');
+var myChart;
 var Api = /** @class */ (function () {
     function Api() {
     }
@@ -93,10 +107,29 @@ var Tasks = /** @class */ (function () {
     function Tasks() {
     }
     Tasks.prototype.addTask = function (activity) {
-        Tasks.tasksList.push(activity);
+        var task = __assign(__assign({}, activity), { status: 'new' });
+        Tasks.tasksListItems.push(task);
+        localStorage.setItem('task-list', JSON.stringify(Tasks.tasksListItems));
     };
-    Tasks.tasksList = localStorage.getItem(JSON.parse('task-list'))
-        ? localStorage.getItem(JSON.parse('task-list'))
+    Tasks.prototype.markTaskDone = function (task) {
+        var taskIndex = Tasks.tasksListItems.findIndex(function (_task) { return _task.key === task.key; });
+        Tasks.tasksListItems[taskIndex].status = 'done';
+        localStorage.setItem('task-list', JSON.stringify(Tasks.tasksListItems));
+        var render = new Render();
+        render.clearTaskList();
+        render.renderAllTasks();
+    };
+    Tasks.prototype.markTaskNew = function (task) {
+        var taskIndex = Tasks.tasksListItems.findIndex(function (_task) { return _task.key === task.key; });
+        Tasks.tasksListItems[taskIndex].status = 'new';
+        localStorage.setItem('task-list', JSON.stringify(Tasks.tasksListItems));
+        var render = new Render();
+        render.clearTaskList();
+        render.renderAllTasks();
+    };
+    // Fetching the tasks from localstorage if there are any present
+    Tasks.tasksListItems = JSON.parse(localStorage.getItem('task-list'))
+        ? JSON.parse(localStorage.getItem('task-list'))
         : [];
     return Tasks;
 }());
@@ -148,14 +181,15 @@ var Render = /** @class */ (function () {
                         api = new Api();
                         runCheck = 5;
                         _loop_1 = function (i) {
-                            var activity, doubleItemCheck, newLiEl, boredItemsList_1;
+                            var activity, doubleItemCheck, taskDoubleItemCheck, newLiEl, boredItemsList_1;
                             return __generator(this, function (_b) {
                                 switch (_b.label) {
                                     case 0: return [4 /*yield*/, api.fetchActivity(filterObject)];
                                     case 1:
                                         activity = _b.sent();
                                         doubleItemCheck = BoredItems.boredItemsList.findIndex(function (boredItem) { return boredItem.key === activity.key; });
-                                        if (doubleItemCheck >= 0) {
+                                        taskDoubleItemCheck = Tasks.tasksListItems.findIndex(function (taskItem) { return taskItem.key === activity.key; });
+                                        if (doubleItemCheck >= 0 || taskDoubleItemCheck >= 0) {
                                             runCheck--;
                                             i--;
                                             if (runCheck === 0)
@@ -164,7 +198,6 @@ var Render = /** @class */ (function () {
                                         else {
                                             runCheck = 5;
                                             boredItems.addItem(activity);
-                                            console.log('hejsan', activity);
                                             newLiEl = void 0;
                                             if (activity.error) {
                                                 newLiEl = this_1.createErrorElement(activity);
@@ -202,20 +235,74 @@ var Render = /** @class */ (function () {
     Render.prototype.clearTaskList = function () {
         taskListEl.innerHTML = '';
     };
-    Render.prototype.renderTasks = function () {
-        Tasks.tasksList.forEach(function (task) {
-            console.log(task);
-            var newLiEl = document.createElement('li');
-            var taskNameEl = document.createElement('p');
-            var taskTypeEl = document.createElement('p');
-            var checkboxSpanEl = document.createElement('span');
-            newLiEl.classList.add('task');
-            taskNameEl.textContent = task.activity;
-            taskTypeEl.textContent = task.type;
-            newLiEl.append(taskNameEl);
-            newLiEl.append(taskTypeEl);
-            newLiEl.append(checkboxSpanEl);
-            taskListEl.append(newLiEl);
+    Render.prototype.createNewTaskElement = function (task) {
+        var newLiEl = document.createElement('li');
+        var taskNameEl = document.createElement('p');
+        var taskTypeEl = document.createElement('p');
+        var checkboxSpanEl = document.createElement('span');
+        newLiEl.classList.add('task');
+        taskTypeEl.classList.add('task-type');
+        taskNameEl.classList.add('task-name');
+        checkboxSpanEl.classList.add('checkbox');
+        checkboxSpanEl.addEventListener('click', function () {
+            var tasks = new Tasks();
+            tasks.markTaskDone(task);
+        });
+        // First letter to uppercase
+        var typeString = task.type.charAt(0).toUpperCase() + task.type.slice(1);
+        taskNameEl.textContent = task.activity;
+        taskTypeEl.textContent = typeString;
+        newLiEl.append(taskNameEl);
+        newLiEl.append(taskTypeEl);
+        newLiEl.append(checkboxSpanEl);
+        return newLiEl;
+    };
+    Render.prototype.createDoneTaskElement = function (task) {
+        var newLiEl = document.createElement('li');
+        var taskNameEl = document.createElement('p');
+        var taskTypeEl = document.createElement('p');
+        var checkboxSpanEl = document.createElement('span');
+        var checkImageEl = document.createElement('img');
+        newLiEl.classList.add('task');
+        taskTypeEl.classList.add('task-type');
+        taskNameEl.classList.add('task-name');
+        checkboxSpanEl.classList.add('checkbox');
+        checkboxSpanEl.classList.add('checked');
+        checkImageEl.setAttribute('src', './assets/check-mark.png');
+        checkImageEl.setAttribute('alt', 'Check');
+        checkboxSpanEl.append(checkImageEl);
+        checkboxSpanEl.addEventListener('click', function () {
+            var tasks = new Tasks();
+            tasks.markTaskNew(task);
+        });
+        // First letter to uppercase
+        var typeString = task.type.charAt(0).toUpperCase() + task.type.slice(1);
+        taskNameEl.textContent = task.activity;
+        taskTypeEl.textContent = typeString;
+        newLiEl.append(taskNameEl);
+        newLiEl.append(taskTypeEl);
+        newLiEl.append(checkboxSpanEl);
+        return newLiEl;
+    };
+    Render.prototype.renderAllTasks = function () {
+        var _this = this;
+        Tasks.tasksListItems.forEach(function (task) {
+            var newLiEl;
+            if (task.status === 'new') {
+                newLiEl = _this.createNewTaskElement(task);
+            }
+            if (newLiEl) {
+                taskListEl.append(newLiEl);
+            }
+        });
+        Tasks.tasksListItems.forEach(function (task) {
+            var newLiEl;
+            if (task.status === 'done') {
+                newLiEl = _this.createDoneTaskElement(task);
+            }
+            if (newLiEl) {
+                taskListEl.append(newLiEl);
+            }
         });
     };
     Render.prototype.renderBoredView = function () {
@@ -224,6 +311,7 @@ var Render = /** @class */ (function () {
         navTodoButtonEl === null || navTodoButtonEl === void 0 ? void 0 : navTodoButtonEl.classList.remove('nav-active');
         parametersFormEl.style.display = 'flex';
         boredItemsList.style.display = 'grid';
+        chartEl.style.display = 'none';
         taskListEl.style.display = 'none';
     };
     Render.prototype.renderTodoView = function () {
@@ -232,9 +320,10 @@ var Render = /** @class */ (function () {
         navActivitiesButtonEl === null || navActivitiesButtonEl === void 0 ? void 0 : navActivitiesButtonEl.classList.remove('nav-active');
         parametersFormEl.style.display = 'none';
         boredItemsList.style.display = 'none';
+        chartEl.style.display = 'none';
         taskListEl.style.display = 'grid';
         this.clearTaskList();
-        this.renderTasks();
+        this.renderAllTasks();
     };
     Render.prototype.renderGraphView = function () {
         navGraphButtonEl === null || navGraphButtonEl === void 0 ? void 0 : navGraphButtonEl.classList.add('nav-active');
@@ -243,6 +332,72 @@ var Render = /** @class */ (function () {
         parametersFormEl.style.display = 'none';
         boredItemsList.style.display = 'none';
         taskListEl.style.display = 'none';
+        chartEl.style.display = 'block';
+        var doneTasks = [];
+        var labels = [];
+        var data = [];
+        Tasks.tasksListItems.forEach(function (task) {
+            if (task.status === 'done') {
+                doneTasks.push(task);
+            }
+            else {
+                if (labels.length === 1) {
+                    data[0] = data[0] + 1;
+                }
+                else {
+                    labels[0] = 'Unfinished';
+                    data[0] = 1;
+                }
+            }
+        });
+        doneTasks.forEach(function (task) {
+            var foundDoubleIndex = labels.findIndex(function (label) { return label === task.type; });
+            if (foundDoubleIndex !== -1) {
+                data[foundDoubleIndex] = data[foundDoubleIndex] + 1;
+            }
+            else {
+                labels.push(task.type);
+                data.push(1);
+            }
+        });
+        if (myChart)
+            myChart.destroy();
+        myChart = new Chart(chart, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '# of Completed',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     };
     return Render;
 }());
@@ -290,6 +445,7 @@ parametersFormEl.addEventListener('submit', function (e) {
     var filter = new Filter();
     var filterValues = filter.returnInputValues();
     var render = new Render();
+    boredItemsList.style.display = 'grid';
     render.removeAllBoredItemsFromList();
     render.renderTenBoredItems(filterValues);
 });
