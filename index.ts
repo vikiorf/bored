@@ -53,7 +53,7 @@ class Api {
 		if (filterObject.price || filterObject.price === 0) {
 			priceString = `maxprice=${filterObject.price}`
 		}
-		const fetchString = `http://www.boredapi.com/api/activity?${typeString}&${participantsString}&${priceString}`
+		const fetchString = `https://www.boredapi.com/api/activity?${typeString}&${participantsString}&${priceString}`
 		console.log(fetchString)
 		return await fetch(fetchString)
 			.then((res) => res.json())
